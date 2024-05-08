@@ -1,0 +1,75 @@
+*,
+html,
+body {
+    font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: "";
+}
+
+.home__btn {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.home__btn:hover {
+    text-decoration: underline;
+}
+
+/* SIDEBAR */
+.sidebar__left__icon {
+    height: 73px;
+    display: flex;
+    font-weight: bold;
+    align-items: center;
+    font-size: 24px;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 16px;
+}
+
+.main {
+    height: 100vh;
+    display: flex;
+}
+
+.sidebar__link {
+    padding: 16px 0px 16px 16px;
+    font-size: 16px;
+}
+
+.sidebar__icon {
+    font-size: 18px;
+}
+
+.sidebar__right {
+    height: 73px;
+}
+
+.card__sub__title {
+    font-size: 14px;
+}
+
+.card__text {
+    padding-top: 16px;
+    font-size: 36px;
+}
+/* SIDEBAR */
