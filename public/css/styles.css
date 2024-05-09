@@ -58,6 +58,7 @@ select {
 
 .sidebar__icon {
     font-size: 18px;
+    cursor: pointer;
 }
 
 .sidebar__right {

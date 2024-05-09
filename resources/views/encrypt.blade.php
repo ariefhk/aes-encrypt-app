@@ -1,5 +1,5 @@
-<x-app-layout title="Dasboard">
-    <h3 class="fw-bold">Dashboard</h3>
+<x-app-layout title="Enkripsi">
+    <h3 class="fw-bold">Enkripsi</h3>
     <div class='pt-4 row gap-4'>
         <div class="card col-3">
             <div class="card-body">
