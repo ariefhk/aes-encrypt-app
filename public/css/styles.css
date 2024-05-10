@@ -26,6 +26,10 @@ select {
     text-overflow: "";
 }
 
+body {
+    overflow-x: hidden;
+}
+
 .home__btn {
     cursor: pointer;
     text-decoration: none;

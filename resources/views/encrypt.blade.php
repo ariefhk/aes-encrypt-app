@@ -1,45 +1,110 @@
 <x-app-layout title="Enkripsi">
-    <h3 class="fw-bold">Enkripsi</h3>
-    <div class='pt-4 row'>
-        <div class="col-6">
-            <form method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="mb-3">
-                    <label for="name" class="form-label">Nama File</label>
-                    <input type="text" class="form-control" id="name" aria-describedby="emailHelp"
-                        autocomplete="off" placeholder="Masukan Nama File" name="name">
-                </div>
-                <div class="mb-3">
-                    <label for="formFile" class="form-label">File</label>
-                    <input class="form-control" type="file" name="file" id="formFile" autocomplete="off"
-                        placeholder="Masukan File">
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Masukan Sandi Rahasia</label>
-                    <div class="input-group ">
-                        <input class="form-control" id="password" type="password" name="password"
-                            placeholder="Masukan Sandi Rahasia" autocomplete="off">
-                        <span class="input-group-text" id="togglePassword" style="cursor: pointer">
-                            <i class="bi bi-eye-slash" id="iconTogglePassword"></i>
-                        </span>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">Enkripsi</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center">
+        <h3 class="fw-bold">Enkripsi</h3>
+        <a href="{{ route('encypt.add') }}" class="btn btn-primary">Tambah File Enkripsi</a>
+    </div>
+    <div class='pt-4 row '>
+        <div class="col-12 pt-5">
+            <table class="table table-bordered data-table ">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Ukuran</th>
+                        <th>Status</th>
+                        <th width="200px">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
-    <script>
-        const togglePassword = document.querySelector("#togglePassword");
-        const iconTogglePassword = document.querySelector("#iconTogglePassword");
-        const password = document.querySelector("#password");
+    <script type="text/javascript">
+        function bytesToKB(bytes) {
+            return (bytes / 1024).toFixed(2);
+        }
 
-        togglePassword.addEventListener("click", function() {
-            // toggle the type attribute
-            const type = password.getAttribute("type") === "password" ? "text" : "password";
-            password.setAttribute("type", type);
-            // toggle the eye icon
-            iconTogglePassword.classList.toggle('bi-eye');
-            iconTogglePassword.classList.toggle('bi-eye-slash');
+        function bytesToMB(bytes) {
+            return (bytes / (1024 * 1024)).toFixed(2);
+        }
+
+        function convertToAppropriateUnit(bytes) {
+            if (bytes >= 1024 && bytes < 1024 * 1024) {
+                return bytesToKB(bytes) + " KB";
+            } else if (bytes >= 1024 * 1024) {
+                return bytesToMB(bytes) + " MB";
+            } else {
+                return bytes + " bytes";
+            }
+        }
+        $(function() {
+            var table = $('.data-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('encypt.index') }}",
+                columnDefs: [{
+                    searchable: false,
+                    orderable: false,
+                    targets: 0
+                }],
+                columns: [{
+                        data: 'id',
+                        name: 'no'
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'size',
+                        name: 'size',
+                        render: function(data, type, row) {
+                            return convertToAppropriateUnit(data)
+                        }
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        render: function(data, type, row) {
+                            switch (data) {
+                                case 'ENCRYPTED':
+                                    return "Terenkripsi"
+                                default:
+                                    return "Belum Terenkripsi"
+                            }
+
+                        }
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            });
+
+            table
+                .on('order.dt search.dt', function() {
+                    let i = 1;
+
+                    table
+                        .cells(null, 0, {
+                            search: 'applied',
+                            order: 'applied'
+                        })
+                        .every(function(cell) {
+                            this.data(i++);
+                        });
+                })
+                .draw();
+
         });
     </script>
 </x-app-layout>

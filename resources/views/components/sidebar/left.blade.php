@@ -5,25 +5,25 @@
       </div>
       <ul class="nav nav-pills px-3 flex-column mb-auto gap-2 ">
           <li class="nav-item">
-              <x-sidebar.link href="/">
+              <x-sidebar.link href="{{ route('home.index') }}">
                   <i class="bi bi-house-door sidebar__icon"></i>
                   Dashboard
               </x-sidebar.link>
           </li>
           <li class="nav-item">
-              <x-sidebar.link href="/encrypt">
+              <x-sidebar.link href="{{ route('encypt.index') }}">
                   <i class="bi bi-lock sidebar__icon"></i>
                   Enkripsi
               </x-sidebar.link>
           </li>
           <li class="nav-item">
-              <x-sidebar.link href="/decrypt">
+              <x-sidebar.link href="{{ route('decrypt.index') }}">
                   <i class="bi bi-unlock sidebar__icon"></i>
                   Dekripsi
               </x-sidebar.link>
           </li>
           <li class="nav-item">
-              <x-sidebar.link href="/all-files">
+              <x-sidebar.link href="{{ route('all-files.index') }}">
                   <i class="bi bi-collection sidebar__icon"></i>
                   Semua File
               </x-sidebar.link>
