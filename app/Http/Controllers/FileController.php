@@ -14,9 +14,16 @@ class FileController extends Controller
      */
     public function index()
     {
-        //
 
-        return view('dashboard');
+        $totalFiles = Files::count();
+        $totaldecrytedFiles = Files::where('status', 'DECRYPTED')->count();
+        $encrytedFiles = Files::where('status', 'ENCRYPTED')->count();
+
+        return view('dashboard', [
+            'totalFiles' => $totalFiles,
+            'totaldecrytedFiles' => $totaldecrytedFiles,
+            'encrytedFiles' => $encrytedFiles
+        ]);
     }
 
     public function showAddEncrypt()
@@ -66,18 +73,82 @@ class FileController extends Controller
     }
 
 
-    public function showDecrypt()
+    public function showDecrypt(Request $request)
     {
-        //
-        $decrytedFiled = Files::where('status', 'DECRYPTED')->get();
+
+        if ($request->ajax()) {
+            $decrytedFiles = Files::where('status', 'DECRYPTED')->limit(10)->latest()->get();
+
+            return Datatables::of($decrytedFiles)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return "<div class='d-flex gap-2'>
+                                <button type='button' data-bs-target='#exampleModal" . $row->id . "'  data-bs-toggle='modal' class='btn btn-danger'>Delete</button>
+                            </div>
+                            <div class='modal fade' id='exampleModal" . $row->id . "' tabindex='-1' aria-labelledby='exampleModalLabel" . $row->id . "' aria-hidden='true'>
+                                <div class='modal-dialog'>
+                                    <div class='modal-content'>
+                                        <div class='modal-header'>
+                                            <h1 class='modal-title fs-5' id='exampleModalLabel" . $row->id . "'>
+                                            Peringatan!
+                                            </h1>
+                                            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                        </div>
+                                        <div class='modal-body'>
+                                            Apakah Anda yakin akan menghapus file enkripsi <span class='fw-bold'>" . $row->name . "</span> ?
+                                        </div>
+                                        <div class='modal-footer'>
+                                            <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Tutup</button>
+                                            <a href='" . route("file.destroy", ["id" => $row->id]) . "' class='btn btn-danger'>Hapus!</a>
+                                        </div>
+                                </div>
+                                </div>
+                            </div>
+                            ";
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
         return view('decrypt');
     }
 
 
-    public function showAllFiles()
+    public function showAllFiles(Request $request)
     {
-        //
-        $files = Files::all();
+
+        if ($request->ajax()) {
+            $allFiles = Files::all();
+
+            return Datatables::of($allFiles)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return "<div class='d-flex gap-2'>"   . $this->defineButtonAllFiles($row->status, $row->id) . "
+                                <button type='button' data-bs-target='#exampleModal" . $row->id . "'  data-bs-toggle='modal' class='btn btn-danger'>Delete</button>
+                            </div>
+                            <div class='modal fade' id='exampleModal" . $row->id . "' tabindex='-1' aria-labelledby='exampleModalLabel" . $row->id . "' aria-hidden='true'>
+                                <div class='modal-dialog'>
+                                    <div class='modal-content'>
+                                        <div class='modal-header'>
+                                            <h1 class='modal-title fs-5' id='exampleModalLabel" . $row->id . "'>
+                                            Peringatan!
+                                            </h1>
+                                            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                        </div>
+                                        <div class='modal-body'>
+                                            Apakah Anda yakin akan menghapus file enkripsi <span class='fw-bold'>" . $row->name . "</span> ?
+                                        </div>
+                                        <div class='modal-footer'>
+                                            <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Tutup</button>
+                                            <a href='" . route("file.destroy", ["id" => $row->id]) . "' class='btn btn-danger'>Hapus!</a>
+                                        </div>
+                                </div>
+                                </div>
+                            </div>
+                            ";
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
         return view('all-files');
     }
 
@@ -187,7 +258,7 @@ class FileController extends Controller
             ];
 
             Files::create($data);
-            return redirect()->route('encypt.index');
+            return redirect()->route('encrypt.index');
         } catch (\Exception $e) {
             // Log the exception
             // \Log::error('Error storing encrypted file: ' . $e->getMessage());
@@ -258,5 +329,20 @@ class FileController extends Controller
         $filePath = $request->filePath;
 
         return Storage::download($filePath);
+    }
+
+    private function defineButtonAllFiles($status, $id)
+    {
+        switch ($status) {
+            case 'ENCRYPTED':
+                return "<a href='" . route('decrypt.index') . "' class='btn btn-secondary'>Dekripsi</a>";
+            case 'DECRYPTED':
+                return "<a href='" . route('all-files.index') . "' class='btn btn-warning'>Download</a>";
+            default:
+                return "<div class='d-flex align-items-center gap-2'>
+                <a href='" . route('all-files.index') . "' class='btn btn-danger'>Enkripsi</a>
+                <a href='" . route('all-files.index') . "' class='btn btn-danger'>Download</a>
+                </div>";
+        }
     }
 }

@@ -5,8 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', [Controllers\FileController::class, 'index'])->name('home.index');
-Route::get('/encrypt', [Controllers\FileController::class, 'showEncrypt'])->name('encypt.index');
-Route::get('/encrypt/add', [Controllers\FileController::class, 'showAddEncrypt'])->name('encypt.add');
+Route::get('/encrypt', [Controllers\FileController::class, 'showEncrypt'])->name('encrypt.index');
+Route::get('/encrypt/add', [Controllers\FileController::class, 'showAddEncrypt'])->name('encrypt.add');
 Route::get('/decrypt', [Controllers\FileController::class, 'showDecrypt'])->name('decrypt.index');
 Route::get('/all-files', [Controllers\FileController::class, 'showAllFiles'])->name('all-files.index');
 

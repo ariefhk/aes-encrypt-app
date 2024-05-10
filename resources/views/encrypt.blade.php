@@ -6,7 +6,7 @@
     </nav>
     <div class="d-flex justify-content-between align-items-center">
         <h3 class="fw-bold">Enkripsi</h3>
-        <a href="{{ route('encypt.add') }}" class="btn btn-primary">Tambah File Enkripsi</a>
+        <a href="{{ route('encrypt.add') }}" class="btn btn-primary">Tambah File Enkripsi</a>
     </div>
     <div class='pt-4 row '>
         <div class="col-12 pt-5">
@@ -47,12 +47,15 @@
             var table = $('.data-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('encypt.index') }}",
+                ajax: "{{ route('encrypt.index') }}",
                 columnDefs: [{
                     searchable: false,
                     orderable: false,
                     targets: 0
                 }],
+                order: [
+                    [1, 'asc']
+                ],
                 columns: [{
                         data: 'id',
                         name: 'no'
@@ -76,7 +79,7 @@
                                 case 'ENCRYPTED':
                                     return "Terenkripsi"
                                 default:
-                                    return "Belum Terenkripsi"
+                                    return "Tidak Diketahui"
                             }
 
                         }

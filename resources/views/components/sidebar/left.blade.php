@@ -11,7 +11,7 @@
               </x-sidebar.link>
           </li>
           <li class="nav-item">
-              <x-sidebar.link href="{{ route('encypt.index') }}">
+              <x-sidebar.link href="{{ route('encrypt.index') }}">
                   <i class="bi bi-lock sidebar__icon"></i>
                   Enkripsi
               </x-sidebar.link>

@@ -1,13 +1,13 @@
 <x-app-layout title="Tambah File Enkripsi">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item "><a href="{{ route('encypt.index') }}">Enkripsi</a></li>
+            <li class="breadcrumb-item "><a href="{{ route('encrypt.index') }}">Enkripsi</a></li>
             <li class="breadcrumb-item active" aria-current="page">Tambah File Enkripsi</li>
         </ol>
     </nav>
     <h3 class="fw-bold">Tambah File Enkripsi</h3>
     <div class='pt-4 row'>
-        <div class="col-6">
+        <div class="col-6 pt-4">
             <form method="POST" enctype="multipart/form-data" action="{{ route('file.encrypt') }}">
                 @csrf
                 <div class="mb-3">
