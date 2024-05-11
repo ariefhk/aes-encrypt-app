@@ -21,9 +21,9 @@
                         placeholder="Masukan File">
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">Masukan Sandi Rahasia</label>
+                    <label for="secretKey" class="form-label">Masukan Sandi Rahasia</label>
                     <div class="input-group ">
-                        <input class="form-control" id="password" type="password" name="password"
+                        <input class="form-control" id="password" type="password" name="secretKey"
                             placeholder="Masukan Sandi Rahasia" autocomplete="off">
                         <span class="input-group-text" id="togglePassword" style="cursor: pointer">
                             <i class="bi bi-eye-slash" id="iconTogglePassword"></i>

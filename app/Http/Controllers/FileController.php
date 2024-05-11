@@ -31,6 +31,27 @@ class FileController extends Controller
 
         return view('add-encrypt');
     }
+    public function showDecryptFromEncrypt($id)
+    {
+        $data = Files::findOrFail($id);
+
+        return view('encrypt-decrypt', [
+            'id' => $data->id,
+            'name' => $data->name,
+            'size' => $this->convertToAppropriateUnit($data->size)
+        ]);
+    }
+
+    public function showEncryptFromDecrypt($id)
+    {
+        $data = Files::findOrFail($id);
+
+        return view('decrypt-encrypt', [
+            'id' => $data->id,
+            'name' => $data->name,
+            'size' => $this->convertToAppropriateUnit($data->size)
+        ]);
+    }
 
     public function showEncrypt(Request $request)
     {
@@ -40,7 +61,7 @@ class FileController extends Controller
             return Datatables::of($encrytedFiles)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return "<div class='d-flex gap-2'>
+                    return "<div class='d-flex gap-2'>"   . $this->defineButtonAllFiles($row->status, $row->id) . "
                                 <button type='button' data-bs-target='#exampleModal" . $row->id . "'  data-bs-toggle='modal' class='btn btn-danger'>Delete</button>
                             </div>
                             <div class='modal fade' id='exampleModal" . $row->id . "' tabindex='-1' aria-labelledby='exampleModalLabel" . $row->id . "' aria-hidden='true'>
@@ -82,7 +103,7 @@ class FileController extends Controller
             return Datatables::of($decrytedFiles)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    return "<div class='d-flex gap-2'>
+                    return "<div class='d-flex gap-2'>"   . $this->defineButtonAllFiles($row->status, $row->id) . "
                                 <button type='button' data-bs-target='#exampleModal" . $row->id . "'  data-bs-toggle='modal' class='btn btn-danger'>Delete</button>
                             </div>
                             <div class='modal fade' id='exampleModal" . $row->id . "' tabindex='-1' aria-labelledby='exampleModalLabel" . $row->id . "' aria-hidden='true'>
@@ -216,48 +237,96 @@ class FileController extends Controller
         try {
             $secretKey = $request->secretKey;
 
-            // Retrieve the uploaded file
-            $file = $request->file('file');
+            if (isset($request->id)) {
+                # code...
+                $fileData = Files::findOrFail($request->id);
+                $file = Storage::get($fileData->location);
+                $fileName = $fileData->original_name;
+                // $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
 
 
-            // Generate a unique file name
-            $fileName = $file->getClientOriginalName();
 
-            // Define the file location
-            $fileLocation = 'encrypt/' . $fileName;
 
-            // Encryption parameters
-            $cipher = 'aes-256-cbc';
-            $ivLength = openssl_cipher_iv_length($cipher);
-            $iv = openssl_random_pseudo_bytes($ivLength);
+                // Define the file location
+                $fileLocation = 'encrypt/' . $fileName;
 
-            // Encrypt the content directly from the uploaded file
-            $encryptedContent = openssl_encrypt(
-                $file->get(),
-                $cipher,
-                $secretKey,
-                OPENSSL_RAW_DATA,
-                $iv
-            );
-            if ($encryptedContent === false) {
-                // Encryption failed
-                throw new \Exception('Encryption failed.');
+                // Encryption parameters
+                $cipher = 'aes-256-cbc';
+                $ivLength = openssl_cipher_iv_length($cipher);
+                $iv = openssl_random_pseudo_bytes($ivLength);
+
+                // Encrypt the content directly from the uploaded file
+                $encryptedContent = openssl_encrypt(
+                    $file,
+                    $cipher,
+                    $secretKey,
+                    OPENSSL_RAW_DATA,
+                    $iv
+                );
+                if ($encryptedContent === false) {
+                    // Encryption failed
+                    throw new \Exception('Encryption failed.');
+                }
+
+                // Concatenate the IV and the encrypted content
+                $encryptedData = $iv . $encryptedContent;
+
+                // Write the encrypted content along with the initialization vector (IV) to the output file using Laravel's Storage facade
+                Storage::put($fileLocation, $encryptedData);
+
+
+                // Delete the original encrypted file
+                Storage::delete($fileData->location);
+
+
+                $fileData->update([
+                    'status' => 'ENCRYPTED',
+                    'location' => $fileLocation
+                ]);
+            } else {
+                // Retrieve the uploaded file
+                $file = $request->file('file');
+                // Generate a unique file name
+                $fileName = $file->getClientOriginalName();
+                // Define the file location
+                $fileLocation = 'encrypt/' . $fileName;
+
+                // Encryption parameters
+                $cipher = 'aes-256-cbc';
+                $ivLength = openssl_cipher_iv_length($cipher);
+                $iv = openssl_random_pseudo_bytes($ivLength);
+
+                // Encrypt the content directly from the uploaded file
+                $encryptedContent = openssl_encrypt(
+                    $file->get(),
+                    $cipher,
+                    $secretKey,
+                    OPENSSL_RAW_DATA,
+                    $iv
+                );
+                if ($encryptedContent === false) {
+                    // Encryption failed
+                    throw new \Exception('Encryption failed.');
+                }
+
+                // Concatenate the IV and the encrypted content
+                $encryptedData = $iv . $encryptedContent;
+
+                // Write the encrypted content along with the initialization vector (IV) to the output file using Laravel's Storage facade
+                Storage::put($fileLocation, $encryptedData);
+
+                $data = [
+                    'name' => $request->name,
+                    'original_name' =>  $fileName,
+                    'status' => 'ENCRYPTED',
+                    'location' => $fileLocation,
+                    'size' => $file->getSize()
+                ];
+
+                Files::create($data);
             }
 
-            // Concatenate the IV and the encrypted content
-            $encryptedData = $iv . $encryptedContent;
 
-            // Write the encrypted content along with the initialization vector (IV) to the output file using Laravel's Storage facade
-            Storage::put($fileLocation, $encryptedData);
-
-            $data = [
-                'name' => $request->name,
-                'status' => 'ENCRYPTED',
-                'location' => $fileLocation,
-                'size' => $file->getSize()
-            ];
-
-            Files::create($data);
             return redirect()->route('encrypt.index');
         } catch (\Exception $e) {
             // Log the exception
@@ -276,7 +345,9 @@ class FileController extends Controller
             $fileData = Files::findOrFail($id);
             $filePath = $fileData->location;
 
+
             $encryptedData = Storage::get($filePath);
+
             // Get the initialization vector (IV) length
             $cipher = 'aes-256-cbc';
             $ivLength = openssl_cipher_iv_length($cipher);
@@ -284,6 +355,7 @@ class FileController extends Controller
             // Separate the IV from the encrypted content
             $iv = substr($encryptedData, 0, $ivLength);
             $encryptedContent = substr($encryptedData, $ivLength);
+
 
             // Decrypt the content
             $decryptedContent = openssl_decrypt(
@@ -324,9 +396,10 @@ class FileController extends Controller
         }
     }
 
-    public function download(Request $request)
+    public function download(string $id)
     {
-        $filePath = $request->filePath;
+        $file = Files::findOrFail($id);
+        $filePath = $file->location;
 
         return Storage::download($filePath);
     }
@@ -335,14 +408,41 @@ class FileController extends Controller
     {
         switch ($status) {
             case 'ENCRYPTED':
-                return "<a href='" . route('decrypt.index') . "' class='btn btn-secondary'>Dekripsi</a>";
+                return "<div class='d-flex align-items-center gap-2'>
+                <a href='" . route('file.download', ['id' => $id]) . "' class='btn btn-warning'>Download</a>
+                <a href='" . route('encrypt.decrypt', ['id' => $id]) . "' class='btn btn-secondary'>Dekrip</a>
+                </div>";
             case 'DECRYPTED':
-                return "<a href='" . route('all-files.index') . "' class='btn btn-warning'>Download</a>";
+                return "<div class='d-flex align-items-center gap-2'>
+                <a href='" . route('file.download', ['id' => $id]) . "' class='btn btn-warning'>Download</a>
+                <a href='" . route('decrypt.encrypt', ['id' => $id]) . "' class='btn btn-primary'>Enkrip</a>
+                </div>";
             default:
                 return "<div class='d-flex align-items-center gap-2'>
                 <a href='" . route('all-files.index') . "' class='btn btn-danger'>Enkripsi</a>
-                <a href='" . route('all-files.index') . "' class='btn btn-danger'>Download</a>
+                <a href='" . route('file.download', ['id' => $id]) . "' class='btn btn-danger'>Download</a>
                 </div>";
+        }
+    }
+
+    private function bytesToKB($bytes)
+    {
+        return number_format($bytes / 1024, 2);
+    }
+
+    private function bytesToMB($bytes)
+    {
+        return number_format($bytes / (1024 * 1024), 2);
+    }
+
+    private   function convertToAppropriateUnit($bytes)
+    {
+        if ($bytes >= 1024 && $bytes < 1024 * 1024) {
+            return $this->bytesToKB($bytes) . " KB";
+        } elseif ($bytes >= 1024 * 1024) {
+            return $this->bytesToMB($bytes) . " MB";
+        } else {
+            return $bytes . " bytes";
         }
     }
 }

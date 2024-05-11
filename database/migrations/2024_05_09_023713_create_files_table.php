@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('files', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('original_name');
             $table->enum('status', ['NONE', 'ENCRYPTED', 'DECRYPTED'])->default('NONE');
             $table->string('location');
             $table->bigInteger('size');

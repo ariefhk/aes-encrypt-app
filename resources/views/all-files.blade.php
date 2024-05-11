@@ -75,7 +75,7 @@
                                 case 'ENCRYPTED':
                                     return "Terenkripsi"
                                 case 'DECRYPTED':
-                                    return "Terenkripsi"
+                                    return "Terdekripsi"
                                 default:
                                     return "Tidak Diketahui"
                             }
