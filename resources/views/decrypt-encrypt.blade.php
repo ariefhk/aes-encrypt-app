@@ -19,21 +19,32 @@
                 <button type="submit" class="btn btn-primary">Enkrip File</button>
             </form>
         </div>
-        <div class="col-5 ">
-            <h5>Keterangan File</h5>
-            <table class="table table-bordered">
-                <tbody>
-                    <tr>
-                        <th>Nama File</th>
-                        <td width="260px">{{ $name }}</td>
+        <div class="col-5 d-flex flex-column gap-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Keterangan File</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="tata_cara">
+                        <li><span class="fw-bold">Nama File:</span> {{ $name }}</li>
+                        <li><span class="fw-bold">Ukuran File:</span> {{ $size }}</li>
 
-                    </tr>
-                    <tr>
-                        <th>Ukuran File</th>
-                        <td width="260px">{{ $size }}</td>
-                    </tr>
-                </tbody>
-            </table>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title fw-semibold">Petunjuk Enkrip file yang sudah didekripsi AES
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="tata_cara">
+                        <li><span class="fw-bold">1.</span> Pastikan file yang akan dienkripsi sudah benar dengan
+                            mengecek pada keterangan file</li>
+                        <li><span class="fw-bold">2.</span> Masukan Sandi Rahasia maksimal 64 karakter</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 

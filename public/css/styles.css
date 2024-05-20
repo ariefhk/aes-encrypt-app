@@ -78,3 +78,14 @@ body {
     font-size: 36px;
 }
 /* SIDEBAR */
+
+/* LIST */
+.tata_cara {
+    list-style: none;
+    padding-left: 0;
+}
+
+.tata_cara li {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}

@@ -10,7 +10,7 @@
     </div>
     <div class='pt-4 row '>
         <div class="col-12 pt-5">
-            <table class="table table-bordered data-table ">
+            <table class="table table-bordered data-table">
                 <thead>
                     <tr>
                         <th>No</th>
