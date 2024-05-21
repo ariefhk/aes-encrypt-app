@@ -27,33 +27,11 @@
 
 <body>
     <div class="main">
-        <x-sidebar.left />
-        <div class="w-100 sidebar__right">
-            <div class="navbar  navbar-expand-lg   border-bottom  p-3 h-100">
-                <div class="container-fluid ">
-                    <i id="sidebar__hide" class="bi bi-list sidebar__icon"></i>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-dark">Logout</button>
-                    </form>
-                </div>
-            </div>
-            <div class="p-4">
-                {{ $slot }}
-            </div>
-        </div>
+        {{ $slot }}
     </div>
 
 
-    <script>
-        const sideBarHide = document.querySelector('#sidebar__hide')
-        const sideBarTarget = document.querySelector('#sidebar__hide_effect') // add toggle d-none
 
-        sideBarHide.addEventListener('click', function() {
-            // Toggle the 'd-none' class on sideBarTarget
-            sideBarTarget.classList.toggle('d-none');
-        });
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
     </script>

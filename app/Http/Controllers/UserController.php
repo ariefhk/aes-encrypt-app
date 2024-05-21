@@ -65,6 +65,15 @@ class UserController extends Controller
     public function store(Request $request)
     {
         //
+        $validated =   $request->validate([
+            'name' => ['required', 'min:3', 'max:255'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'min:8']
+        ]);
+
+        User::create($validated);
+
+        return  redirect()->route('login');
     }
 
     /**
@@ -97,5 +106,17 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function showLogin(Request $request)
+    {
+
+        return view('login');
+    }
+
+    public function showRegister(Request $request)
+    {
+
+        return view('register');
     }
 }

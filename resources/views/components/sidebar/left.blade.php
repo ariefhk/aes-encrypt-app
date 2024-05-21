@@ -1,9 +1,11 @@
   <div id="sidebar__hide_effect" class="d-flex flex-column flex-shrink-0  bg-light" style="width: 280px;height:100vh">
-      <div class="sidebar__left__icon">
-          <span class="px-3">
-              AES ENCRYPT</span>
+      <div class="px-3 border-bottom d-flex align-items-center" style="height:73px">
+          <div class="d-flex px-3 align-items-center gap-3">
+              <i class="bi bi-file-lock2-fill fs-2 d-block"></i>
+              <h4>AES ENCRYPT</h4>
+          </div>
       </div>
-      <ul class="nav nav-pills px-3 flex-column mb-auto gap-2 ">
+      <ul class="nav nav-pills px-3 pt-3 flex-column mb-auto gap-2 ">
           <li class="nav-item">
               <x-sidebar.link href="{{ route('home.index') }}">
                   <i class="bi bi-house-door sidebar__icon"></i>
