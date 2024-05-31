@@ -32,10 +32,15 @@
             <div class="navbar  navbar-expand-lg   border-bottom  p-3 h-100">
                 <div class="container-fluid ">
                     <i id="sidebar__hide" class="bi bi-list sidebar__icon"></i>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-dark">Logout</button>
-                    </form>
+                    @if (Auth::check())
+                        <form action="{{ route('logout') }}" method="POST" class="d-flex gap-5 align-items-center">
+                            @csrf
+                            <span class="fs-4">{{ Auth::user()->name }}</span>
+                            <button type="submit" class="btn btn-dark">Logout</button>
+                        </form>
+                    @else
+                        <p>User not logged in.</p>
+                    @endif
                 </div>
             </div>
             <div class="p-4">

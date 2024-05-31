@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Files;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Yajra\DataTables\DataTables;
 
 class FileController extends Controller
@@ -14,15 +16,16 @@ class FileController extends Controller
      */
     public function index()
     {
+        $userId = Auth::id();
 
-        $totalFiles = Files::count();
-        $totaldecrytedFiles = Files::where('status', 'DECRYPTED')->count();
-        $encrytedFiles = Files::where('status', 'ENCRYPTED')->count();
+        $totalFiles = Files::where('user_id', $userId)->where('status', 'DECRYPTED')->count();
+        $totalDecryptedFiles = Files::where('user_id', $userId)->where('status', 'DECRYPTED')->count();
+        $encryptedFiles = Files::where('user_id', $userId)->where('status', 'ENCRYPTED')->count();
 
         return view('dashboard', [
             'totalFiles' => $totalFiles,
-            'totaldecrytedFiles' => $totaldecrytedFiles,
-            'encrytedFiles' => $encrytedFiles
+            'totaldecrytedFiles' => $totalDecryptedFiles,
+            'encrytedFiles' => $encryptedFiles
         ]);
     }
 
@@ -33,7 +36,8 @@ class FileController extends Controller
     }
     public function showDecryptFromEncrypt($id)
     {
-        $data = Files::findOrFail($id);
+        $userId = Auth::id();
+        $data = Files::where('user_id', $userId)->findOrFail($id);
 
         return view('encrypt-decrypt', [
             'id' => $data->id,
@@ -44,7 +48,8 @@ class FileController extends Controller
 
     public function showEncryptFromDecrypt($id)
     {
-        $data = Files::findOrFail($id);
+        $userId = Auth::id();
+        $data = Files::where('user_id', $userId)->findOrFail($id);
 
         return view('decrypt-encrypt', [
             'id' => $data->id,
@@ -54,11 +59,17 @@ class FileController extends Controller
     }
 
     public function showEncrypt(Request $request)
-    {
-        if ($request->ajax()) {
-            $encrytedFiles = Files::where('status', 'ENCRYPTED')->limit(10)->latest()->get();
 
-            return Datatables::of($encrytedFiles)
+    {
+        $userId = Auth::id();
+        if ($request->ajax()) {
+            $encryptedFiles = Files::where('user_id', $userId)
+                ->where('status', 'ENCRYPTED')
+                ->latest()
+                ->limit(10)
+                ->get();
+
+            return Datatables::of($encryptedFiles)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return "<div class='d-flex gap-2'>"   . $this->defineButtonAllFiles($row->status, $row->id) . "
@@ -97,10 +108,15 @@ class FileController extends Controller
     public function showDecrypt(Request $request)
     {
 
+        $userId = Auth::id();
         if ($request->ajax()) {
-            $decrytedFiles = Files::where('status', 'DECRYPTED')->limit(10)->latest()->get();
+            $decryptedFiles = Files::where('user_id', $userId)
+                ->where('status', 'DECRYPTED')
+                ->latest()
+                ->limit(10)
+                ->get();
 
-            return Datatables::of($decrytedFiles)
+            return Datatables::of($decryptedFiles)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return "<div class='d-flex gap-2'>"   . $this->defineButtonAllFiles($row->status, $row->id) . "
@@ -136,11 +152,12 @@ class FileController extends Controller
 
     public function showAllFiles(Request $request)
     {
+        $userId = Auth::id();
 
         if ($request->ajax()) {
-            $allFiles = Files::all();
+            $files = Files::where('user_id', $userId)->get();
 
-            return Datatables::of($allFiles)
+            return Datatables::of($files)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     return "<div class='d-flex gap-2'>"   . $this->defineButtonAllFiles($row->status, $row->id) . "
@@ -221,12 +238,13 @@ class FileController extends Controller
     {
         //
         try {
-            $file = Files::findOrFail($id);
+            $userId = Auth::id();
+            $file = Files::where('user_id', $userId)->findOrFail($id);
             $filePath = $file->location;
             Storage::delete($filePath);
 
             $file->deleteOrFail();
-            return redirect()->route('all-files.index');
+            return redirect()->route('all-files.index')->with('success', 'File ' . $file->name . ' sukses dihapus!');
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -235,17 +253,18 @@ class FileController extends Controller
     public function encrypt(Request $request)
     {
         try {
-            $secretKey = $request->secretKey;
+            $userId = Auth::id();
 
             if (isset($request->id)) {
-                # code...
-                $fileData = Files::findOrFail($request->id);
+                $validatedData = $request->validate([
+                    'secretKey' => ['required', 'string', 'max:64'],
+                ]);
+
+                // Retrieve the validated secret key
+                $secretKey = $validatedData['secretKey'];
+                $fileData = Files::where('user_id', $userId)->findOrFail($request->id);
                 $file = Storage::get($fileData->location);
                 $fileName = $fileData->original_name;
-                // $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-
-
 
                 // Define the file location
                 $fileLocation = 'encrypt/' . $fileName;
@@ -265,7 +284,7 @@ class FileController extends Controller
                 );
                 if ($encryptedContent === false) {
                     // Encryption failed
-                    throw new \Exception('Encryption failed.');
+                    throw new \Exception('Enkripsi Gagal!');
                 }
 
                 // Concatenate the IV and the encrypted content
@@ -283,11 +302,23 @@ class FileController extends Controller
                     'status' => 'ENCRYPTED',
                     'location' => $fileLocation
                 ]);
+
+                return redirect()->route('encrypt.index')->with('success', 'File ' . $fileData->name . ' sukses didekripsi!');
             } else {
-                // Retrieve the uploaded file
-                $file = $request->file('file');
+                // Validate the file upload
+                $validatedDataFile = $request->validate([
+                    'name' => ['required', 'string'],
+                    'secretKey' => ['required', 'string', 'max:64'],
+                    'file' => ['required', 'file', 'max:2048'], // max size in kilobytes (2048 KB = 2 MB)
+                ]);
+
+                // Retrieve the validated file
+                $file = $validatedDataFile['file'];
+                $secretKey = $validatedDataFile['secretKey'];
+
                 // Generate a unique file name
                 $fileName = $file->getClientOriginalName();
+
                 // Define the file location
                 $fileLocation = 'encrypt/' . $fileName;
 
@@ -306,7 +337,7 @@ class FileController extends Controller
                 );
                 if ($encryptedContent === false) {
                     // Encryption failed
-                    throw new \Exception('Encryption failed.');
+                    throw new \Exception('Enkripsi Gagal!');
                 }
 
                 // Concatenate the IV and the encrypted content
@@ -316,23 +347,24 @@ class FileController extends Controller
                 Storage::put($fileLocation, $encryptedData);
 
                 $data = [
-                    'name' => $request->name,
+                    'name' => $validatedDataFile['name'],
                     'original_name' =>  $fileName,
                     'status' => 'ENCRYPTED',
                     'location' => $fileLocation,
-                    'size' => $file->getSize()
+                    'size' => $file->getSize(),
+                    'user_id' => Auth::id()
                 ];
 
                 Files::create($data);
+
+                return redirect()->route('encrypt.index')->with('success', 'File ' . $validatedDataFile['name'] . ' sukses didekripsi!');
             }
-
-
-            return redirect()->route('encrypt.index');
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
         } catch (\Exception $e) {
             // Log the exception
-            // \Log::error('Error storing encrypted file: ' . $e->getMessage());
-            return $e->getMessage();
-
+            // return $e->getMessage();
+            return redirect()->back()->with('error', $e->getMessage());
             // Handle the error as needed (e.g., display a message to the user)
         }
     }
@@ -340,9 +372,15 @@ class FileController extends Controller
     public function decrypt(Request $request, string $id)
     {
         try {
-            $secretKey = $request->secretKey;
+            $userId = Auth::id();
+            $validatedSecretKey = $request->validate([
+                'secretKey' => 'required|string|max:64',
+            ]);
 
-            $fileData = Files::findOrFail($id);
+            // Retrieve the validated secret key
+            $secretKey = $validatedSecretKey['secretKey'];
+
+            $fileData = Files::where('user_id', $userId)->findOrFail($id);
             $filePath = $fileData->location;
 
 
@@ -368,7 +406,7 @@ class FileController extends Controller
 
             if ($decryptedContent === false) {
                 // Decryption failed
-                throw new \Exception('Decryption failed.');
+                throw new \Exception('Dekripsi Gagal, pastikan Sandi Rahasia sesuai!');
             }
 
             // Generate a unique file name for decrypted file
@@ -389,16 +427,20 @@ class FileController extends Controller
             ]);
 
 
-            return redirect()->route('decrypt.index');
+            return redirect()->route('decrypt.index')->with('success', 'File ' . $fileData->name . ' sukses didekripsi!');
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
         } catch (\Exception $e) {
 
-            return $e->getMessage();
+
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
     public function download(string $id)
     {
-        $file = Files::findOrFail($id);
+        $userId = Auth::id();
+        $file = Files::where('user_id', $userId)->findOrFail($id);
         $filePath = $file->location;
 
         return Storage::download($filePath);

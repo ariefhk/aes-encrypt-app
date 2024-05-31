@@ -6,6 +6,11 @@
         </ol>
     </nav>
     <h3 class="fw-bold">Tambah File Enkripsi</h3>
+    @if (session('error'))
+        <div class="alert alert-danger" id="error-message">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class='pt-4 row justify-content-between '>
         <div class="col-6 pt-4">
             <form method="POST" enctype="multipart/form-data" action="{{ route('file.encrypt') }}">
@@ -14,11 +19,17 @@
                     <label for="name" class="form-label">Nama File</label>
                     <input type="text" class="form-control" id="name" aria-describedby="emailHelp"
                         autocomplete="off" placeholder="Masukan Nama File" name="name">
+                    @error('name')
+                        <p class="text-danger">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div class="mb-3">
                     <label for="formFile" class="form-label">File</label>
                     <input class="form-control" type="file" name="file" id="formFile" autocomplete="off"
                         placeholder="Masukan File">
+                    @error('file')
+                        <p class="text-danger">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div class="mb-3">
                     <label for="secretKey" class="form-label">Masukan Sandi Rahasia</label>
@@ -29,6 +40,9 @@
                             <i class="bi bi-eye-slash" id="iconTogglePassword"></i>
                         </span>
                     </div>
+                    @error('secretKey')
+                        <p class="text-danger">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div class="d-flex justify-content-between">
                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -84,6 +98,16 @@
             file.value = ""; // Resetting file input
             password.value = "";
         }
+    </script>
+
+    <script>
+        // Hide the error message after 10 seconds
+        setTimeout(function() {
+            var errorMessage = document.getElementById('error-message');
+            if (errorMessage) {
+                errorMessage.style.display = 'none';
+            }
+        }, 5000); // 10000 milliseconds = 10 seconds
     </script>
 
 </x-app-layout>

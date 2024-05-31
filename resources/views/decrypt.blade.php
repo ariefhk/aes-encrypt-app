@@ -7,6 +7,11 @@
     <div class="d-flex justify-content-between align-items-center">
         <h3 class="fw-bold">Dekripsi</h3>
     </div>
+    @if (session('success'))
+        <div class="alert alert-success" id="success-message">
+            {{ session('success') }}
+        </div>
+    @endif
     <div class='pt-4 row '>
         <div class="col-12 pt-5">
             <table class="table table-bordered data-table ">
@@ -24,6 +29,15 @@
             </table>
         </div>
     </div>
+    <script>
+        // Hide the error message after 10 seconds
+        setTimeout(function() {
+            var successMessage = document.getElementById('success-message');
+            if (successMessage) {
+                successMessage.style.display = 'none';
+            }
+        }, 5000); // 10000 milliseconds = 10 seconds
+    </script>
     <script type="text/javascript">
         function bytesToKB(bytes) {
             return (bytes / 1024).toFixed(2);

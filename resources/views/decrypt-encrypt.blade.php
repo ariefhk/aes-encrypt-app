@@ -6,6 +6,11 @@
         </ol>
     </nav>
     <h3 class="fw-bold">Enkrip File yang Tedekripsi</h3>
+    @if (session('error'))
+        <div class="alert alert-danger" id="error-message">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class='pt-4 row justify-between gap-5'>
         <div class="col-6 pt-4">
             <form method="POST" action="{{ route('file.encrypt') }}">
@@ -15,6 +20,9 @@
                     <label for="secretKey" class="form-label">Sandi Rahasia</label>
                     <input type="text" class="form-control" id="secretKey" aria-describedby="secretKey"
                         autocomplete="off" placeholder="Masukan Sandi Rahasia File" name="secretKey">
+                    @error('secretKey')
+                        <p class="text-danger">{{ $message }}</p>
+                    @enderror
                 </div>
                 <button type="submit" class="btn btn-primary">Enkrip File</button>
             </form>
@@ -62,6 +70,16 @@
             iconTogglePassword.classList.toggle('bi-eye');
             iconTogglePassword.classList.toggle('bi-eye-slash');
         });
+    </script>
+
+    <script>
+        // Hide the error message after 10 seconds
+        setTimeout(function() {
+            var errorMessage = document.getElementById('error-message');
+            if (errorMessage) {
+                errorMessage.style.display = 'none';
+            }
+        }, 5000); // 10000 milliseconds = 10 seconds
     </script>
 
 </x-app-layout>
