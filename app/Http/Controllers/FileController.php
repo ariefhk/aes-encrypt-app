@@ -309,7 +309,9 @@ class FileController extends Controller
                 $validatedDataFile = $request->validate([
                     'name' => ['required', 'string'],
                     'secretKey' => ['required', 'string', 'max:64'],
-                    'file' => ['required', 'file', 'max:2048'], // max size in kilobytes (2048 KB = 2 MB)
+                    //'file' => ['required', 'file', 'max:2048'], // max size in kilobytes (2048 KB = 2 MB)
+                    'file' => ['required', 'file', 'max:10240'], // max size in kilobytes (10240 KB = 10 MB)
+                    // 'file' => ['required', 'file'], // not limited file size
                 ]);
 
                 // Retrieve the validated file

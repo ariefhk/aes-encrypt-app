@@ -61,7 +61,7 @@
                 <div class="card-body">
                     <ul class="tata_cara">
                         <li><span class="fw-bold">1.</span> Format File Enkripsi : PDF, Word, PPT, Excel, dan TXT</li>
-                        <li><span class="fw-bold">2.</span> Ukuran File Maksimal 2mb</li>
+                        <li><span class="fw-bold">2.</span> Ukuran File Maksimal 10mb</li>
                         <li><span class="fw-bold">3.</span> Kunci Enkripsi berjumlah maksimal 64 karakter</li>
                         <li><span class="fw-bold">4.</span>Tombol enkripsi digunakan untuk mengenkripsi file dengan
                             syarat seluruh textbox telah terisi</li>
