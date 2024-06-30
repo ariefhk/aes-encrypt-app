@@ -303,7 +303,7 @@ class FileController extends Controller
                     'location' => $fileLocation
                 ]);
 
-                return redirect()->route('encrypt.index')->with('success', 'File ' . $fileData->name . ' sukses didekripsi!');
+                return redirect()->route('encrypt.index')->with('success', 'File ' . $fileData->name . ' sukses dienkripsi!');
             } else {
                 // Validate the file upload
                 $validatedDataFile = $request->validate([
@@ -359,7 +359,7 @@ class FileController extends Controller
 
                 Files::create($data);
 
-                return redirect()->route('encrypt.index')->with('success', 'File ' . $validatedDataFile['name'] . ' sukses didekripsi!');
+                return redirect()->route('encrypt.index')->with('success', 'File ' . $validatedDataFile['name'] . ' sukses dienkripsi!');
             }
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->validator)->withInput();
