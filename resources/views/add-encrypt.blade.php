@@ -32,7 +32,10 @@
                     @enderror
                 </div>
                 <div class="mb-3">
-                    <label for="secretKey" class="form-label">Masukan Sandi Rahasia</label>
+                    <div class="d-flex justify-content-between">
+                        <label for="secretKey" class="form-label">Masukan Sandi Rahasia</label>
+                        <span id="generate-password" class="generate-password"> Generate Sandi Rahasia?</span>
+                    </div>
                     <div class="input-group ">
                         <input class="form-control" id="password" type="password" name="secretKey"
                             placeholder="Masukan Sandi Rahasia" autocomplete="off">
@@ -73,13 +76,30 @@
 
 
     <script>
+        // GENERATE PASSWORD
+        const generatePassword = document.querySelector("#generate-password");
+        // PASSWORD TOGGLE
         const togglePassword = document.querySelector("#togglePassword");
         const iconTogglePassword = document.querySelector("#iconTogglePassword");
-
         const name = document.querySelector("#name");
         const password = document.querySelector("#password");
         const file = document.querySelector("#formFile");
         const resetForm = document.querySelector("#resetForm");
+
+
+        generatePassword.addEventListener("click", function() {
+            function generatePassword(length) {
+                const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+<>?";
+                let password = "";
+                for (let i = 0; i < length; i++) {
+                    const randomIndex = Math.floor(Math.random() * charset.length);
+                    password += charset[randomIndex];
+                }
+                return password;
+            }
+
+            password.value = generatePassword(8);
+        });
 
         togglePassword.addEventListener("click", function() {
             // toggle the type attribute

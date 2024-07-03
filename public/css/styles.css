@@ -103,3 +103,13 @@ body {
     align-items: center;
     overflow: hidden;
 }
+
+.generate-password {
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.generate-password:hover {
+    font-weight: 600;
+}
